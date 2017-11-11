@@ -3,7 +3,7 @@ package com.koto.keddit.adapter
 import android.support.v7.widget.RecyclerView
 import android.view.ViewGroup
 import com.koto.keddit.R
-import com.koto.keddit.RedditNewsItem
+import com.koto.keddit.models.RedditNewsItem
 import com.koto.keddit.extensions.getFriendlyTime
 import com.koto.keddit.extensions.inflate
 import com.koto.keddit.extensions.loadImg

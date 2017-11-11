@@ -3,7 +3,7 @@ package com.koto.keddit.adapter
 import android.support.v4.util.SparseArrayCompat
 import android.support.v7.widget.RecyclerView
 import android.view.ViewGroup
-import com.koto.keddit.RedditNewsItem
+import com.koto.keddit.models.RedditNewsItem
 
 class NewsAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
     private var items: ArrayList<ViewType>

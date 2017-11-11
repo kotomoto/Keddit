@@ -1,18 +1,25 @@
 package com.koto.keddit
 
 import android.os.Bundle
-import android.support.v4.app.Fragment
+import android.support.design.widget.Snackbar
 import android.support.v7.widget.LinearLayoutManager
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import com.koto.keddit.adapter.NewsAdapter
 import com.koto.keddit.extensions.inflate
+import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.schedulers.Schedulers
 import kotlinx.android.synthetic.main.news_fragment.*
 
-class NewsFragment : Fragment() {
+class NewsFragment : RxBaseFragment() {
+
     private val newsList by lazy {
         news_list
+    }
+
+    private val newsManager by lazy {
+        NewsManager()
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
@@ -28,21 +35,24 @@ class NewsFragment : Fragment() {
         initAdapter()
 
         if (savedInstanceState == null) {
-            val news = mutableListOf<RedditNewsItem>()
-
-            for (i in 1..10) {
-                news.add(RedditNewsItem(
-                        "author$i",
-                        "Title $i",
-                        i, // number of comments
-                        1457207701L - i * 200, // time
-                        "http://lorempixel.com/200/200/technics/$i", // image url
-                        "url"
-                ))
-            }
-
-            (newsList.adapter as NewsAdapter).addNews(news)
+            requestNews()
         }
+    }
+
+    private fun requestNews() {
+        val subscription = newsManager.getNews()
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(
+                { retrievedNews ->
+                    (newsList.adapter as NewsAdapter).addNews(retrievedNews)
+                },
+                { e ->
+                    Snackbar.make(newsList, e.message ?: "", Snackbar.LENGTH_LONG).show()
+                }
+        )
+
+        subscriptions.add(subscription)
     }
 
     private fun initAdapter() {
