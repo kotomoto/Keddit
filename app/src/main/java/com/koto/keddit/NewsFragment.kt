@@ -8,12 +8,12 @@ import android.view.View
 import android.view.ViewGroup
 import com.koto.keddit.adapter.NewsAdapter
 import com.koto.keddit.extensions.inflate
+import com.koto.keddit.models.RedditNews
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
 import kotlinx.android.synthetic.main.news_fragment.*
 
 class NewsFragment : RxBaseFragment() {
-
     private val newsList by lazy {
         news_list
     }
@@ -21,6 +21,8 @@ class NewsFragment : RxBaseFragment() {
     private val newsManager by lazy {
         NewsManager()
     }
+
+    private var redditNews: RedditNews? = null
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         return container?.inflate(R.layout.news_fragment)
@@ -30,7 +32,12 @@ class NewsFragment : RxBaseFragment() {
         super.onActivityCreated(savedInstanceState)
 
         newsList.setHasFixedSize(true)
-        newsList.layoutManager = LinearLayoutManager(context)
+
+        val linearLayout = LinearLayoutManager(context)
+        newsList.layoutManager = linearLayout
+        newsList.clearOnScrollListeners()
+
+        newsList.addOnScrollListener(InfiniteScrollListener({ requestNews() }, linearLayout))
 
         initAdapter()
 
@@ -40,17 +47,18 @@ class NewsFragment : RxBaseFragment() {
     }
 
     private fun requestNews() {
-        val subscription = newsManager.getNews()
+        val subscription = newsManager.getNews(redditNews?.after ?: "")
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(
-                { retrievedNews ->
-                    (newsList.adapter as NewsAdapter).addNews(retrievedNews)
-                },
-                { e ->
-                    Snackbar.make(newsList, e.message ?: "", Snackbar.LENGTH_LONG).show()
-                }
-        )
+                        { retrievedNews ->
+                            redditNews = retrievedNews
+                            (newsList.adapter as NewsAdapter).addNews(retrievedNews.news)
+                        },
+                        { e ->
+                            Snackbar.make(newsList, e.message ?: "", Snackbar.LENGTH_LONG).show()
+                        }
+                )
 
         subscriptions.add(subscription)
     }
