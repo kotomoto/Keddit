@@ -9,6 +9,7 @@ import android.view.ViewGroup
 import android.widget.ImageView
 import com.koto.keddit.R
 import com.squareup.picasso.Picasso
+import org.mockito.Mockito
 
 fun ViewGroup.inflate(layoutId: Int, attachToRoot: Boolean = false): View {
     return LayoutInflater.from(context).inflate(layoutId, this, attachToRoot)
@@ -28,3 +29,5 @@ inline fun <reified T : Parcelable> createParcel(crossinline createFromParcel: (
 
             override fun newArray(size: Int): Array<out T?> = arrayOfNulls(size)
         }
+
+inline fun <reified T : Any> mock(): T = Mockito.mock(T::class.java)
