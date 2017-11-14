@@ -14,6 +14,10 @@ import io.reactivex.schedulers.Schedulers
 import kotlinx.android.synthetic.main.news_fragment.*
 
 class NewsFragment : RxBaseFragment() {
+    companion object {
+        private val KEY_REDDIT_NEWS = "redditNews"
+    }
+
     private val newsList by lazy {
         news_list
     }
@@ -31,17 +35,22 @@ class NewsFragment : RxBaseFragment() {
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
 
-        newsList.setHasFixedSize(true)
+        newsList.apply {
+            setHasFixedSize(true)
 
-        val linearLayout = LinearLayoutManager(context)
-        newsList.layoutManager = linearLayout
-        newsList.clearOnScrollListeners()
+            val linearLayout = LinearLayoutManager(context)
+            layoutManager = linearLayout
+            clearOnScrollListeners()
 
-        newsList.addOnScrollListener(InfiniteScrollListener({ requestNews() }, linearLayout))
+            addOnScrollListener(InfiniteScrollListener({ requestNews() }, linearLayout))
+        }
 
         initAdapter()
 
-        if (savedInstanceState == null) {
+        if (savedInstanceState != null && savedInstanceState.containsKey(KEY_REDDIT_NEWS)) {
+            redditNews = savedInstanceState.get(KEY_REDDIT_NEWS) as RedditNews
+            (newsList.adapter as NewsAdapter).clearAndAddNews(redditNews!!.news)
+        } else {
             requestNews()
         }
     }
@@ -66,6 +75,15 @@ class NewsFragment : RxBaseFragment() {
     private fun initAdapter() {
         if (newsList.adapter == null) {
             newsList.adapter = NewsAdapter()
+        }
+    }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+
+        val news = (newsList.adapter as NewsAdapter).getNews()
+        if (redditNews != null && news.isNotEmpty()) {
+            outState.putParcelable(KEY_REDDIT_NEWS, redditNews?.copy(news = news))
         }
     }
 }
