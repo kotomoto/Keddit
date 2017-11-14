@@ -4,6 +4,7 @@ import android.os.Parcel
 import android.os.Parcelable
 import com.koto.keddit.adapter.AdapterConstants
 import com.koto.keddit.adapter.ViewType
+import com.koto.keddit.extensions.createParcel
 
 data class RedditNewsItem(
         val author: String,
@@ -13,23 +14,23 @@ data class RedditNewsItem(
         val thumbnail: String,
         val url: String
 ) : ViewType, Parcelable {
-    constructor(parcel: Parcel) : this(
-            parcel.readString(),
-            parcel.readString(),
-            parcel.readInt(),
-            parcel.readLong(),
-            parcel.readString(),
-            parcel.readString())
+    constructor(parcelIn: Parcel) : this(
+            parcelIn.readString(),
+            parcelIn.readString(),
+            parcelIn.readInt(),
+            parcelIn.readLong(),
+            parcelIn.readString(),
+            parcelIn.readString())
 
     override fun getViewType() = AdapterConstants.NEWS
 
-    override fun writeToParcel(parcel: Parcel, flags: Int) {
-        parcel.writeString(author)
-        parcel.writeString(title)
-        parcel.writeInt(numComments)
-        parcel.writeLong(created)
-        parcel.writeString(thumbnail)
-        parcel.writeString(url)
+    override fun writeToParcel(dest: Parcel, flags: Int) {
+        dest.writeString(author)
+        dest.writeString(title)
+        dest.writeInt(numComments)
+        dest.writeLong(created)
+        dest.writeString(thumbnail)
+        dest.writeString(url)
     }
 
     override fun describeContents(): Int {
@@ -37,10 +38,7 @@ data class RedditNewsItem(
     }
 
     companion object {
-        @JvmField val CREATOR: Parcelable.Creator<RedditNewsItem> = object : Parcelable.Creator<RedditNewsItem> {
-            override fun newArray(size: Int): Array<RedditNewsItem?> = arrayOfNulls(size)
-
-            override fun createFromParcel(source: Parcel) = RedditNewsItem(source)
-        }
+        @JvmField
+        val CREATOR = createParcel { RedditNewsItem(it) }
     }
 }

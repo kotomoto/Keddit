@@ -2,21 +2,26 @@ package com.koto.keddit.models
 
 import android.os.Parcel
 import android.os.Parcelable
+import com.koto.keddit.extensions.createParcel
 
 
 data class RedditNews(
         val after: String,
         val before: String,
         val news: List<RedditNewsItem>) : Parcelable {
-    constructor(parcel: Parcel) : this(
-            parcel.readString(),
-            parcel.readString(),
-            parcel.createTypedArrayList(RedditNewsItem.CREATOR))
 
-    override fun writeToParcel(parcel: Parcel, flags: Int) {
-        parcel.writeString(after)
-        parcel.writeString(before)
-        parcel.writeTypedList(news)
+    constructor(parcelIn: Parcel) : this(
+            parcelIn.readString(),
+            parcelIn.readString(),
+            mutableListOf<RedditNewsItem>().apply {
+                parcelIn.readTypedList(this, RedditNewsItem.CREATOR)
+            }
+    )
+
+    override fun writeToParcel(dest: Parcel, flags: Int) {
+        dest.writeString(after)
+        dest.writeString(before)
+        dest.writeTypedList(news)
     }
 
     override fun describeContents(): Int {
@@ -24,10 +29,7 @@ data class RedditNews(
     }
 
     companion object {
-        val CREATOR: Parcelable.Creator<RedditNews> = object : Parcelable.Creator<RedditNews> {
-            override fun createFromParcel(parcel: Parcel) = RedditNews(parcel)
-
-            override fun newArray(size: Int): Array<RedditNews?> = arrayOfNulls(size)
-        }
+        @JvmField
+        val CREATOR = createParcel { RedditNews(it) }
     }
 }
