@@ -12,6 +12,7 @@ import com.koto.keddit.models.RedditNews
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
 import kotlinx.android.synthetic.main.news_fragment.*
+import javax.inject.Inject
 
 class NewsFragment : RxBaseFragment() {
     companion object {
@@ -22,11 +23,16 @@ class NewsFragment : RxBaseFragment() {
         news_list
     }
 
-    private val newsManager by lazy {
-        NewsManager()
-    }
+    @Inject
+    lateinit var newsManager: NewsManager
 
     private var redditNews: RedditNews? = null
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+
+        KedditApp.newsComponent.inject(this)
+    }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         return container?.inflate(R.layout.news_fragment)

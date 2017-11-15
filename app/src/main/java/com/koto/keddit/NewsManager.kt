@@ -3,11 +3,12 @@ package com.koto.keddit
 import com.koto.keddit.api.NewsAPI
 import com.koto.keddit.models.RedditNews
 import com.koto.keddit.models.RedditNewsItem
-import com.koto.keddit.restapi.NewsRestAPI
 import io.reactivex.Observable
+import javax.inject.Inject
+import javax.inject.Singleton
 
-
-class NewsManager(private val api: NewsAPI = NewsRestAPI()) {
+@Singleton
+class NewsManager @Inject constructor(private val api: NewsAPI) {
     fun getNews(after: String, limit: String = "10"): Observable<RedditNews> {
         return Observable.create { subscriber ->
             val callResponse = api.getNews(after, limit)
