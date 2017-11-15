@@ -1,6 +1,7 @@
 package com.koto.keddit
 
 import android.app.Application
+import com.koto.keddit.di.DaggerNewsComponent
 import com.koto.keddit.di.NewsComponent
 
 class KedditApp : Application() {
